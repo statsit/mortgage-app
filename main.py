@@ -12,9 +12,9 @@ table_name = 'mortgage_tbl'
 env = dotenv_values("mortgage_app/.env")
 
 def main(
-    amount=700000.00, 
-    last_month="2021-04-30", 
-    current_month="2021-07-31", 
+    amount, 
+    last_month, 
+    current_month, 
     table_name='test_mortgage_tbl'
     ):
     last_month = datetime.strptime(last_month, '%Y-%m-%d')
@@ -22,6 +22,7 @@ def main(
     amount = float(amount)
     mortgage= Mortgage(last_month, table_name, dotenv_values("mortgage_app/.env"))
     mortgage.insert_result(current_month, amount)
+    print(f'{amount} for {current_month} has been paid')
 
 
 if __name__ == '__main__':
