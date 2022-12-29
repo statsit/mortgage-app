@@ -5,22 +5,23 @@ from dotenv import dotenv_values
 from mortgage_app.app import Mortgage, Connection
 
 
-current_month = "2022-12-30"
-amount_in_aus = 2300
-rate_in_naira = 465
-amount = float(amount_in_aus * rate_in_naira)
-table_name = 'test_mortgage_tbl'
+current_month = "2022-12-29"
+amount = 2300.00
+monthly_payment = 0 #700000
+table_name = 'mortgage_tbl'
 env = dotenv_values("mortgage_app/.env")
 
 def main(
     amount=amount, 
     current_month=current_month, 
-    table_name='test_mortgage_tbl'
+    table_name=table_name,
+    monthly_payment=monthly_payment
     ):
     current_month = datetime.strptime(current_month, '%Y-%m-%d')
     amount = float(amount)
+    monthly_payment = float(monthly_payment)
     mortgage= Mortgage(table_name, dotenv_values("mortgage_app/.env"))
-    mortgage.insert_result(current_month, amount)
+    mortgage.insert_result(current_month, amount) #monthly_payment)
     print(f'{amount} for {current_month} has been paid')
 
 
