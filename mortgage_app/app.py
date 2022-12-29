@@ -1,5 +1,6 @@
 from dataclasses import dataclass 
 import os
+from datetime import date, timedelta
 from dotenv import dotenv_values
 import dataset
 
@@ -12,8 +13,6 @@ class Connection:
         """
         Create connection to database
         """
-        # self.last_month = last_month
-        # self.table_name = table_name
         self.host=env['POSTGRES_HOST']
         self.dbname=env['POSTGRES_DB']
         self.user=env['POSTGRES_USER']
@@ -41,8 +40,8 @@ class Mortgage(Connection):
     """
     Mortgage class for calculating monthly mortgage payments
     """
-    def __init__(self, last_month, table_name, env: str=dotenv_values('.env')):
-        self.month = last_month
+    def __init__(self, table_name, env: str=dotenv_values('.env')):
+        # self.month = last_month
         self.table_name = table_name
         self.principal= PRINCIPAL
         self.monthly_replayment= 0
@@ -70,18 +69,39 @@ class Mortgage(Connection):
              'monthly_replayment': amount
              }
 
+    def detect_date(self, created_date:date) -> bool:
+        """
+        Detect date
+        """
+        today_month = date.today().month
+        today_year = date.today().year
+
+        if created_date.year == today_year and created_date.month < today_month:
+            return True
+        if created_date.year < today_year and created_date.month > today_month:
+            return True
+       
+        return False
+
+
 
     def retrieve_balance(self) -> float:
         """
         Return balance
         """
         db = super().connect()
-        result = db[self.table_name].find_one(created=self.month)
+        # result = db[self.table_name].find_one(created=self.month)
 
-        if result is  None:
+        result = db.query(f"SELECT * FROM {self.table_name} ORDER BY created DESC LIMIT 1")
+
+        for row in result:
+
+        # if result is  None:
+        #     return None
+        # else:
+            if self.detect_date(row['created'])==True:
+                    return row['balance']
             return None
-        else:
-            return result['balance']
 
 
     def insert_result(self, current_month, amount) -> None:
