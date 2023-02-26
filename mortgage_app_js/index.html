@@ -1,6 +1,10 @@
 <!DOCTYPE html>
 <html lang="en">
     <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Mortgage Simulator</title>
+        <link rel="stylesheet" href="style.css">
     
     </head>
     <body>
@@ -13,14 +17,25 @@
         <input type="number" id="repayment" value=1500000 placeholder="Enter monthly repayment amount"/><br/>
         <br/>
         <label for="interest">Interest Rate:</label>
-        <input type="range" id="interestRate"  min="1" max="100"  value="15"/><br/>
+        <input type="range" id="interestRate"  min="1" max="100"  value="15" placeholder="15"/><br/>
         <br/>
         <label for="years">Your current saving:</label>
         <input type="number" id="basesaving" value=0.0 placeholder="Enter Current Saving" /><br/>
         <br/>
         <label for="date">Date:</label>
-        <input type="month" id="date" />
-        
+        <input type="date" id="date"  value="2023-01-01"/>
+
+        <br/>
+        <br/>
+
+        <canvas id="myCanvas" width=240 height=240 style="background-color:#808080;"></canvas>
+        <button type="button" onclick="rotate_ctx();">Rotate</button>
+        <p></p>
+        <a id=""download" download="mortgage.png" href="" title="Download" onclick="download_img(this);">Download</a>
+        <br/>
+        <br/>
         <script src="mortgage_app.js"></script>
+        <script src="index.js"></script>
+        
     </body>
 </html>

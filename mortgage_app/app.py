@@ -52,23 +52,23 @@ class Mortgage(Connection):
         super().__init__(env)
    
 
-    def monthly_payment(self,current_month:date, amount:float, monthy_payment:float=None) -> float:
+    def monthly_payment(self,current_month:date, amount:float, monthly_payment:float=None) -> float:
         """
-        Calculate monthly mortgage payment
+        Calculate monthly mortgage payment in Naira and generate a dictionary of the result
         Args:
             current_month (date): current month
             amount (float): amount in AUD
-            monthy_payment (float): monthly payment in AUD
+            monthly_payment (float): monthly payment in Naira. It is defaulted to None
         Returns:
-            dict
+            dictionary of created date, principal, interest, principal_interest, balance, monthly_repayment, monthly_repayment_AUD
         """
         if self.retrieve_balance() is not None:
             self.principal = self.retrieve_balance()
         
         self.monthly_repayment = amount * self.exchange_rate
 
-        if monthy_payment is not None:
-            self.monthly_repayment = monthy_payment
+        if monthly_payment is not None:
+            self.monthly_repayment = monthly_payment
 
         self.monthly_payment_AUD = amount
         self.monthly_interest = (self.principal * self.interest_rate ) / 12
@@ -86,7 +86,7 @@ class Mortgage(Connection):
 
     def detect_date(self, created_date:date) -> bool:
         """
-        Detect date
+        Detect if created date is less than current date
         Args:
             created_date (date): created date
         Returns:
@@ -107,7 +107,7 @@ class Mortgage(Connection):
 
     def retrieve_balance(self) -> float:
         """
-        Return balance
+        Return last balance from database
 
         Returns:
             float
@@ -128,7 +128,7 @@ class Mortgage(Connection):
             return None
 
 
-    def insert_result(self, current_month, amount, monthly_payment=None) -> None:
+    def insert_result(self, current_month:date, amount:float, monthly_payment=None) -> None:
         """
         Insert result into database
         Args:

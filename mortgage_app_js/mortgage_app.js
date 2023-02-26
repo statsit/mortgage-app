@@ -68,6 +68,9 @@ let interestRate = document.getElementById('interestRate').value;
 let startDate = document.getElementById('date').value;
 let baseSaving = document.getElementById('basesaving').value;
 
+console.log(typeof principal)
+console.log(typeof startDate)
+
 
 let m = new MortgageSimulator(48000000, 0.15, new Date(2023, 3, 2), 1500000, 55000,2000);
 let res = m.calculate();
