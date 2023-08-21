@@ -1,36 +1,95 @@
-from dotenv import dotenv_values
-from datetime import datetime
+import json 
+from datetime import datetime, date
+import pytest
+
+from mortgage_app.api import utils
+
+def test_latest_payment_made(test_app, monkeypatch):
+    test_data = {
+        "created": date(2022, 12, 30),
+        "principal": 49911536.33, 
+        "interest": 623894.2, 
+        "principal_interest": 50535430.53,
+        "balance": 49465930.53,
+         "monthly_replaymnent": 1069500.0
+        }
+
+    async def mock_get_latest(): 
+        return test_data
+    
+    monkeypatch.setattr(utils, "get_latest", mock_get_latest)
+
+    response = test_app.get("/mortgage/latest")
+    assert response.status_code == 200
+    assert response.json() == test_data
 
 
-from mortgage_app import __version__
+def test_payment_made_by_date(test_app, monkeypatch):
 
-from mortgage_app.app import Mortgage
+    test_data = {
+        "created": date(2022, 12, 30),
+        "principal": 49911536.33, 
+        "interest": 623894.2, 
+        "principal_interest": 50535430.53,
+        "balance": 49465930.53,
+         "monthly_replaymnent": 1069500.0
+        }
+    
+    async def mock_get_by_date(created): 
+        return test_data
+    
+    monkeypatch.setattr(utils, "get_latest", mock_get_by_date)
 
-env = dotenv_values("mortgage_app/.env")
-current_month = "2021-04-30"
-amount = 2300.00
-table_name = 'mortgage_tbl'
+    response = test_app.get("/mortgage/2020-12-30/")
+    assert response.status_code == 200
+    assert response.json() == test_data
 
 
-mortgage= Mortgage(table_name, env)
+def test_payment_made_by_date_incorrectly(test_app, monkeypatch):
+    async def mock_get_date(created): 
+        return None
+    
+    monkeypatch.setattr(utils, "get_by_date", mock_get_date)
 
 
-def test_date_detect():
-    created_date = datetime.strptime(current_month, '%Y-%m-%d')
-    assert mortgage.detect_date(created_date) == True
+    response = test_app.get("/mortgage/2020-12-30/")
+    assert response.status_code == 404
+    assert response.json()["detail"] == "Payment with created 2020-12-30 not found"
 
-def test_retrieve_balance():
-    assert mortgage.retrieve_balance() > 50000000.00
-    # print(res)
-    # assert len(res) >1
 
-# def test_monthly_payment():
-#     res = mortgage.monthly_payment(current_month, amount)
-#     assert res['monthly_replayment'] > 0
-#     assert res['balance'] > 0
-#     assert res['monthly_payment_AUD'] > 0
-#     assert res['interest'] > 0
-#     assert res['principal_interest'] > 0
 
-def test_version():
-    assert __version__ == '0.1.0'
+def test_remove_payment(test_app, monkeypatch):
+    test_data = {
+        "created": date(2022, 12, 30),
+        "principal": 49911536.33, 
+        "interest": 623894.2, 
+        "principal_interest": 50535430.53,
+        "balance": 49465930.53,
+         "monthly_replaymnent": 1069500.0
+        }
+
+    async def mock_get_by_date(created): 
+        return test_data
+    
+    monkeypatch.setattr(utils, "get_latest", mock_get_by_date)
+
+    async def mock_delete(created):
+        return created
+    
+    monkeypatch.setattr(utils, "delete", mock_delete)
+
+    response = test_app.get("/mortgage/2020-12-30/")
+    assert response.status_code == 200
+    assert response.json() == test_data
+
+
+def test_remove_payment_incorrectly(test_app, monkeypatch):
+    async def mock_get_date(created): 
+        return None
+    
+    monkeypatch.setattr(utils, "get_by_date", mock_get_date)
+
+
+    response = test_app.delete("/mortgage/2020-12-30/")
+    assert response.status_code == 404
+    assert response.json()["detail"] == "Payment with created 2020-12-30 not found"
