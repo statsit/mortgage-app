@@ -10,6 +10,10 @@ start_web:
 	@echo "Starting web server..."
 	poetry run uvicorn mortgage_app.main:app --reload --workers 1 --host 0.0.0.0 --port 8000
 
+start_admin:
+	@echo "Starting admin..."
+	poetry run streamlit run mortgage_admin/admin.py
+
 
 docker_build:
 	@echo "Building docker image..."
